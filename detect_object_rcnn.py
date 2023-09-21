@@ -15,6 +15,10 @@ ap.add_argument("-i", "--image", required=True,
                 help="path to input image")
 args = vars(ap.parse_args())
 
+# speed-up using multithreads
+cv2.setUseOptimized(True)
+cv2.setNumThreads(4)
+
 # load the our fine-tuned model and label binarizer from disk
 print("[INFO] loading model and label binarizer...")
 model = load_model(config.MODEL_PATH)
@@ -27,8 +31,25 @@ image = imutils.resize(image, width=500)
 print("[INFO] running selective search...")
 ss = cv2.ximgproc.segmentation.createSelectiveSearchSegmentation()
 ss.setBaseImage(image)
-ss.switchToSelectiveSearchFast()
+ss.switchToSelectiveSearchQuality()
 rects = ss.process()
+rects = rects[:100]
+
+print(rects)
+
+
+# clone the original image so that we can draw on it
+clone = image.copy()
+# loop over the bounding boxes and associated probabilities
+for r in rects:
+    # draw the bounding box, label, and probability on the image
+    x, y, w, h = r
+    cv2.rectangle(clone, (x, y), (x+w, y+h), (0, 255, 0), 1, cv2.LINE_AA)
+
+# show the output after *before* running NMS
+cv2.imshow("Selective Search", clone)
+cv2.waitKey(0)
+
 
 # initialize the list of region proposals that we'll be classifying
 # along with their associated bounding boxes
@@ -86,12 +107,13 @@ for (box, prob) in zip(boxes, proba):
     cv2.rectangle(clone, (startX, startY), (endX, endY),
                   (0, 255, 0), 2)
     y = startY - 10 if startY - 10 > 10 else startY + 10
+    print(prob)
     text = "Raccoon: {:.2f}%".format(prob * 100)
     cv2.putText(clone, text, (startX, y),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 2)
 # show the output after *before* running NMS
 cv2.imshow("Before NMS", clone)
-# cv2.waitKey(0)
+cv2.waitKey(0)
 
 # run non-maxima suppression on the bounding boxes
 boxIdxs = non_max_suppression(boxes, proba)

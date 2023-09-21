@@ -30,4 +30,4 @@ MODEL_PATH = "raccoon_detector.model"
 ENCODER_PATH = "label_encoder.pickle"
 # define the minimum probability required for a positive prediction
 # (used to filter out false-positive predictions)
-MIN_PROBA = 0.99
+MIN_PROBA = 0.9999
