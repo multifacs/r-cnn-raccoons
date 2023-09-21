@@ -1,7 +1,7 @@
 # import the necessary packages
 from pyimagesearch import config
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.applications import MobileNetV3Large
 from tensorflow.keras.layers import AveragePooling2D
 from tensorflow.keras.layers import Dropout
 from tensorflow.keras.layers import Flatten
@@ -9,7 +9,7 @@ from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import Input
 from tensorflow.keras.models import Model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.applications.mobilenet_v3 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from tensorflow.keras.preprocessing.image import load_img
 from tensorflow.keras.utils import to_categorical
@@ -75,7 +75,7 @@ aug = ImageDataGenerator(
 
 # load the MobileNetV2 network, ensuring the head FC layer sets are
 # left off
-baseModel = MobileNetV2(weights="imagenet", include_top=False,
+baseModel = MobileNetV3Large(weights="imagenet", include_top=False,
 	input_tensor=Input(shape=(224, 224, 3)))
 # construct the head of the model that will be placed on top of the
 # the base model
@@ -95,7 +95,7 @@ for layer in baseModel.layers:
 	
 # compile our model
 print("[INFO] compiling model...")
-opt = Adam(lr=INIT_LR)
+opt = Adam(learning_rate=INIT_LR)
 model.compile(loss="binary_crossentropy", optimizer=opt,
 	metrics=["accuracy"])
 # train the head of the network
@@ -119,7 +119,7 @@ print(classification_report(testY.argmax(axis=1), predIdxs,
 
 # serialize the model to disk
 print("[INFO] saving mask detector model...")
-model.save(config.MODEL_PATH, save_format="h5")
+model.save(config.MODEL_PATH)
 # serialize the label encoder to disk
 print("[INFO] saving label encoder...")
 f = open(config.ENCODER_PATH, "wb")
