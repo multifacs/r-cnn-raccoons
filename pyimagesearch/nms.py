@@ -30,7 +30,7 @@ def non_max_suppression_slow(boxes, overlapThresh):
         pick.append(i)
         suppress = [last]
     # loop over all indexes in the indexes list
-        for pos in xrange(0, last):
+        for pos in range(0, last):
             # grab the current index
             j = idxs[pos]
             # find the largest (x, y) coordinates for the start of
